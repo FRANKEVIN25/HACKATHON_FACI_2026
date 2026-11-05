@@ -3,6 +3,11 @@ import {lazy,Suspense,useEffect,useRef,useState} from 'react';
 import {Camera,Video,Square,RotateCcw,Play,Hand,AlertCircle} from 'lucide-react';
 const BodyMap3D=lazy(()=>import('./body-map-3d'));
 
+export function QuestionVideo({src,label}:{src:string;label:string}){
+ const [failedSrc,setFailedSrc]=useState<string|null>(null);
+ return failedSrc===src?<div className="no-question-video"><Hand size={48}/><h3>{label}</h3><p>El video en LSP aún no está disponible. Puedes leer la pregunta o pedir apoyo al equipo.</p></div>:<video key={src} className="media-video" src={src} controls playsInline preload="metadata" aria-label={label} onError={()=>setFailedSrc(src)}/>;
+}
+
 export function AuthVideo({src,token,label}:{src:string;token?:string;label:string}){
  const [url,setUrl]=useState(''),[error,setError]=useState(false);
  useEffect(()=>{let dead=false,object='';setUrl('');setError(false);const controller=new AbortController();fetch(src,{headers:token?{'x-patient-token':token}:{},signal:controller.signal}).then(async r=>{if(!r.ok)throw Error();object=URL.createObjectURL(await r.blob());if(!dead)setUrl(object)}).catch(e=>{if(e.name!=='AbortError')setError(true)});return()=>{dead=true;controller.abort();if(object)URL.revokeObjectURL(object)}},[src,token]);
